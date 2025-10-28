@@ -42,7 +42,7 @@ const fileToBase64 = (file: File): Promise<{ mimeType: string; data: string }> =
 const Onboarding: React.FC<{ onComplete: (info: StudentInfo) => void; onRequestLocation: () => void; }> = ({ onComplete, onRequestLocation }) => {
     const [step, setStep] = useState(1);
     const [info, setInfo] = useState<StudentInfo>({
-        grade: '', desiredField: '',
+        grade: '', desiredField: '', studentName: '',
         mockExam: { korean: '', math: '', english: '', inquiry1: '', inquiry2: '' }
     });
     const [recordInputType, setRecordInputType] = useState<'image' | 'manual' | null>(null);
@@ -75,10 +75,11 @@ const Onboarding: React.FC<{ onComplete: (info: StudentInfo) => void; onRequestL
             setInfo(prev => ({ ...prev, academicRecordImage: imagePayload }));
 
             try {
-                const extractedData = await extractDataFromImage(imagePayload);
+                const { studentName, manualRecord } = await extractDataFromImage(imagePayload);
                 setInfo(prev => ({
                     ...prev,
-                    manualAcademicRecord: extractedData
+                    studentName: studentName,
+                    manualAcademicRecord: manualRecord
                 }));
                 setRecordInputType('manual'); 
             } catch (error) {

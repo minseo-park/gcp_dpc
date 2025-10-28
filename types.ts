@@ -1,4 +1,5 @@
 export interface StudentInfo {
+  studentName?: string;
   grade: '1' | '2' | '3' | '';
   desiredField: string;
   academicRecord?: string; // Now optional

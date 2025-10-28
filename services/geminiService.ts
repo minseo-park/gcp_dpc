@@ -6,17 +6,18 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
 export const extractDataFromImage = async (
   academicRecordImage: { mimeType: string; data: string }
-): Promise<ManualAcademicRecord> => {
+): Promise<{ studentName: string; manualRecord: ManualAcademicRecord }> => {
   const prompt = `
     You are an expert OCR system specialized in South Korean academic records (학생생활기록부, Saenggibu).
-    Analyze the provided image of an academic record and extract the text content for the following five key sections:
-    1.  **수상경력 (Awards)**
-    2.  **창의적 체험활동상황 (Creative Experiential Activities)**: Include details from 자율활동, 동아리활동, 봉사활동, and 진로활동.
-    3.  **세부능력 및 특기사항 (Detailed Abilities & Special Notes by Subject)**
-    4.  **독서활동상황 (Reading Activities)**
-    5.  **행동특성 및 종합의견 (Behavioral Characteristics & Comprehensive Opinion)**
+    Analyze the provided image of an academic record and extract the student's name and the text content for the following key sections:
+    1.  **성명 (Student Name)**
+    2.  **수상경력 (Awards)**
+    3.  **창의적 체험활동상황 (Creative Experiential Activities)**: Include details from 자율활동, 동아리활동, 봉사활동, and 진로활동.
+    4.  **세부능력 및 특기사항 (Detailed Abilities & Special Notes by Subject)**
+    5.  **독서활동상황 (Reading Activities)**
+    6.  **행동특성 및 종합의견 (Behavioral Characteristics & Comprehensive Opinion)**
 
-    Summarize the content of each section. If a section is not found or is empty, return an empty string for that field.
+    Summarize the content of each section. If a section is not found or is empty, return an empty string for that field. The student's name must be extracted accurately. If the name is not found, return "OOO".
 
     **CRITICAL**: The final output must be a single, valid JSON object that adheres to the provided schema. Do not add any text, markdown formatting, or explanations outside the JSON object.
   `;
@@ -39,19 +40,22 @@ export const extractDataFromImage = async (
         responseSchema: {
           type: Type.OBJECT,
           properties: {
+            studentName: { type: Type.STRING, description: "학생 성명" },
             awards: { type: Type.STRING, description: "수상경력" },
             creativeActivities: { type: Type.STRING, description: "창의적 체험활동상황" },
             detailedAbilities: { type: Type.STRING, description: "세부능력 및 특기사항" },
             readingActivities: { type: Type.STRING, description: "독서활동상황" },
             behavioralCharacteristics: { type: Type.STRING, description: "행동특성 및 종합의견" },
           },
-          required: ["awards", "creativeActivities", "detailedAbilities", "readingActivities", "behavioralCharacteristics"],
+          required: ["studentName", "awards", "creativeActivities", "detailedAbilities", "readingActivities", "behavioralCharacteristics"],
         },
       },
     });
     
     const jsonText = response.text.trim();
-    return JSON.parse(jsonText) as ManualAcademicRecord;
+    const parsedJson = JSON.parse(jsonText);
+    const { studentName, ...manualRecord } = parsedJson;
+    return { studentName, manualRecord: manualRecord as ManualAcademicRecord };
 
   } catch (error) {
     console.error("Error calling Gemini API for data extraction:", error);
@@ -108,6 +112,10 @@ const getAnalysisPrompt = (
   const mockExamInfo = mockExamScoresProvided
     ? `- Mock Exam Scores (percentile): Korean ${studentInfo.mockExam.korean}, Math ${studentInfo.mockExam.math}, English ${studentInfo.mockExam.english}, Inquiry1 ${studentInfo.mockExam.inquiry1}, Inquiry2 ${studentInfo.mockExam.inquiry2}`
     : `- Mock Exam Scores: The user skipped this step. Please estimate the student's academic performance for the regular decision (정시) analysis based on the provided academic record (학생 생활기록부) content.`;
+    
+  const studentNameInfo = studentInfo.studentName 
+    ? `The student's name is ${studentInfo.studentName}. Use this exact name in the report.`
+    : `Anonymize the student's name to "OOO 학생".`;
 
 
   const promptText = `
@@ -125,7 +133,7 @@ const getAnalysisPrompt = (
     **Your Task:**
     Analyze all the provided information and generate a comprehensive report. The report must be in Korean.
 
-    1.  **Student Identification**: Anonymize the student's name to "OOO 학생".
+    1.  **Student Identification**: ${studentNameInfo}
     2.  **Quantitative Analysis**:
         - Create a grade trend chart data for 4 semesters. Estimate GPA based on the text.
         - Analyze mock exam scores, highlighting strengths and weaknesses. If scores are not provided, estimate performance based on the academic record.
