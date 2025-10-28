@@ -1,8 +1,9 @@
+
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, LineChart, Line
 } from 'recharts';
-import type { StudentInfo, AnalysisReport, UniversityRecommendation, RecommendationCategory, ManualAcademicRecord } from './types';
+import type { StudentInfo, AnalysisReport, UniversityRecommendation, RecommendationCategory, ManualAcademicRecord, LocalSupport } from './types';
 import { analyzeStudentData, extractDataFromImage } from './services/geminiService';
 
 // --- ICONS ---
@@ -290,7 +291,9 @@ const Onboarding: React.FC<{ onComplete: (info: StudentInfo) => void; onRequestL
 };
 
 const ReportDashboard: React.FC<{ report: AnalysisReport }> = ({ report }) => {
+    type Place = { name: string; latitude: number; longitude: number; };
     const [activeTab, setActiveTab] = useState('dashboard');
+    const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
     
     const pieData = [
         { name: '수시', value: report.applicationStrategy?.earlyDecisionProbability ?? 50 },
@@ -405,7 +408,7 @@ const ReportDashboard: React.FC<{ report: AnalysisReport }> = ({ report }) => {
                                 <h3 className="text-xl font-semibold mb-4 text-slate-700">약점 보완 전문 학원 추천</h3>
                                 <div className="space-y-4">
                                     {(report.localSupport.recommendedAcademies ?? []).map((item, i) => (
-                                        <div key={i} className="p-4 border rounded-lg transition-all hover:bg-slate-50">
+                                        <div key={i} className="p-4 border rounded-lg transition-all hover:bg-slate-100 cursor-pointer shadow-sm hover:shadow-md" onClick={() => item.latitude && item.longitude && setSelectedPlace(item)}>
                                             <div className="flex justify-between items-center">
                                                 <h4 className="font-bold">{item.name}</h4>
                                                 <span className="text-sm font-medium text-slate-500">{item.distance}</span>
@@ -416,6 +419,7 @@ const ReportDashboard: React.FC<{ report: AnalysisReport }> = ({ report }) => {
                                                 </div>
                                                 <span className="text-xs text-slate-500 ml-2">({item.rating.toFixed(1)}, 리뷰 {item.reviewCount})</span>
                                             </div>
+                                            {item.latitude && item.longitude && <p className="text-xs text-blue-600 mt-2 text-right">지도에서 위치 보기 →</p>}
                                         </div>
                                     ))}
                                 </div>
@@ -424,7 +428,7 @@ const ReportDashboard: React.FC<{ report: AnalysisReport }> = ({ report }) => {
                                 <h3 className="text-xl font-semibold mb-4 text-slate-700">학습 공간 추천</h3>
                                 <div className="space-y-4">
                                     {(report.localSupport.recommendedStudySpaces ?? []).map((item, i) => (
-                                        <div key={i} className="p-4 border rounded-lg transition-all hover:bg-slate-50">
+                                        <div key={i} className="p-4 border rounded-lg transition-all hover:bg-slate-100 cursor-pointer shadow-sm hover:shadow-md" onClick={() => item.latitude && item.longitude && setSelectedPlace(item)}>
                                             <div className="flex justify-between items-center">
                                                 <h4 className="font-bold">{item.name}</h4>
                                                 <span className="text-sm font-medium text-slate-500">{item.distance}</span>
@@ -438,6 +442,7 @@ const ReportDashboard: React.FC<{ report: AnalysisReport }> = ({ report }) => {
                                                 </div>
                                                 <span className="text-xs text-slate-500 ml-2">({item.rating.toFixed(1)})</span>
                                             </div>
+                                            {item.latitude && item.longitude && <p className="text-xs text-blue-600 mt-2 text-right">지도에서 위치 보기 →</p>}
                                         </div>
                                     ))}
                                 </div>
@@ -479,6 +484,34 @@ const ReportDashboard: React.FC<{ report: AnalysisReport }> = ({ report }) => {
         {activeTab === 'dashboard' && renderDashboard()}
         {activeTab === 'strategy' && renderStrategy()}
         {activeTab === 'local' && renderLocalSupport()}
+
+        {selectedPlace && (
+            <div
+                className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+                onClick={() => setSelectedPlace(null)}
+            >
+                <div
+                    className="bg-white rounded-lg shadow-2xl p-4 w-11/12 max-w-4xl h-5/6 flex flex-col"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <div className="flex justify-between items-center mb-4 pb-2 border-b">
+                        <h3 className="text-xl font-bold text-slate-800">{selectedPlace.name}</h3>
+                        <button onClick={() => setSelectedPlace(null)} className="text-slate-500 hover:text-slate-800 text-2xl leading-none">&times;</button>
+                    </div>
+                    <div className="flex-grow">
+                        <iframe
+                            width="100%"
+                            height="100%"
+                            className="rounded-md border"
+                            src={`https://www.openstreetmap.org/export/embed.html?bbox=${selectedPlace.longitude - 0.005},${selectedPlace.latitude - 0.005},${selectedPlace.longitude + 0.005},${selectedPlace.latitude + 0.005}&layer=mapnik&marker=${selectedPlace.latitude},${selectedPlace.longitude}`}
+                            style={{ border: 0 }}
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                        ></iframe>
+                    </div>
+                </div>
+            </div>
+        )}
       </div>
     );
 };

@@ -150,8 +150,7 @@ const getAnalysisPrompt = (
         - For each recommendation, provide the university, major, admission type, chance of acceptance (%), and a brief rationale.
     6.  **Local Support (LBS)**:
         - Identify the student's weakest subject.
-        - Based on the user's location, recommend 3 nearby specialized academies and 2 study spaces (libraries or study cafes). If location is not available, provide general advice. Include realistic names, distances, ratings, and review counts.
-        - **For each recommended academy and study space, you must include its precise latitude and longitude.**
+        - Based on the user's location, recommend 3 nearby specialized academies and 2 study spaces (libraries or study cafes). If location is not available, provide general advice. Include realistic names, distances, ratings, review counts, and precise latitude and longitude coordinates for each location.
 
     **CRITICAL**: The final output must be a single, valid JSON object only. Do not add any text, markdown formatting like \`\`\`json, or any explanations outside the JSON object itself.
   `;
