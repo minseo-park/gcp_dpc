@@ -1,0 +1,7 @@
+{
+  "name": "Copy of Admissions Navigator AI",
+  "description": "An AI-powered web service for parents of high school students in South Korea. It provides a precise diagnosis of their child's academic profile and offers personalized strategies for admission to top universities, featuring chatbot consultations and AI analysis of academic records.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
