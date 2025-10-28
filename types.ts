@@ -1,3 +1,4 @@
+
 export interface StudentInfo {
   studentName?: string;
   grade: '1' | '2' | '3' | '';
@@ -76,12 +77,16 @@ export interface LocalSupport {
     distance: string;
     rating: number;
     reviewCount: number;
+    latitude: number;
+    longitude: number;
   }[];
   recommendedStudySpaces: {
     name: string;
     type: 'Library' | 'Study Cafe';
     distance: string;
     rating: number;
+    latitude: number;
+    longitude: number;
   }[];
 }
 

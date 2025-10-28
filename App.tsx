@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, LineChart, Line
@@ -392,61 +391,63 @@ const ReportDashboard: React.FC<{ report: AnalysisReport }> = ({ report }) => {
       </div>
     );
 
-    const renderLocalSupport = () => (
-        <div className="bg-white p-6 rounded-xl shadow-lg">
-            <h2 className="text-2xl font-bold mb-2 text-slate-800">지역 기반 학업 지원 솔루션</h2>
-            {report?.localSupport ? (
-              <>
-                <p className="mb-6 text-slate-600">
-                    AI 분석 결과, {report.studentName} 학생은 <span className="font-bold text-blue-600">{report.localSupport.weakSubject}</span> 보완이 시급합니다.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                        <h3 className="text-xl font-semibold mb-4 text-slate-700">약점 보완 전문 학원 추천</h3>
-                        <div className="space-y-4">
-                            {(report.localSupport.recommendedAcademies ?? []).map((item, i) => (
-                                <div key={i} className="p-4 border rounded-lg">
-                                    <div className="flex justify-between items-center">
-                                      <h4 className="font-bold">{item.name}</h4>
-                                      <span className="text-sm font-medium text-slate-500">{item.distance}</span>
-                                    </div>
-                                    <div className="flex items-center mt-1">
-                                        <div className="flex">
-                                            {[...Array(5)].map((_, idx) => <StarIcon key={idx} filled={idx < Math.round(item.rating)} />)}
+    const renderLocalSupport = () => {
+        return (
+            <div className="bg-white p-6 rounded-xl shadow-lg">
+                <h2 className="text-2xl font-bold mb-2 text-slate-800">지역 기반 학업 지원 솔루션</h2>
+                {report?.localSupport ? (
+                    <>
+                        <p className="mb-6 text-slate-600">
+                            AI 분석 결과, {report.studentName} 학생은 <span className="font-bold text-blue-600">{report.localSupport.weakSubject}</span> 보완이 시급합니다.
+                        </p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <h3 className="text-xl font-semibold mb-4 text-slate-700">약점 보완 전문 학원 추천</h3>
+                                <div className="space-y-4">
+                                    {(report.localSupport.recommendedAcademies ?? []).map((item, i) => (
+                                        <div key={i} className="p-4 border rounded-lg transition-all hover:bg-slate-50">
+                                            <div className="flex justify-between items-center">
+                                                <h4 className="font-bold">{item.name}</h4>
+                                                <span className="text-sm font-medium text-slate-500">{item.distance}</span>
+                                            </div>
+                                            <div className="flex items-center mt-1">
+                                                <div className="flex">
+                                                    {[...Array(5)].map((_, idx) => <StarIcon key={idx} filled={idx < Math.round(item.rating)} />)}
+                                                </div>
+                                                <span className="text-xs text-slate-500 ml-2">({item.rating.toFixed(1)}, 리뷰 {item.reviewCount})</span>
+                                            </div>
                                         </div>
-                                        <span className="text-xs text-slate-500 ml-2">({item.rating.toFixed(1)}, 리뷰 {item.reviewCount})</span>
-                                    </div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-                    <div>
-                        <h3 className="text-xl font-semibold mb-4 text-slate-700">학습 공간 추천</h3>
-                        <div className="space-y-4">
-                            {(report.localSupport.recommendedStudySpaces ?? []).map((item, i) => (
-                                <div key={i} className="p-4 border rounded-lg">
-                                  <div className="flex justify-between items-center">
-                                    <h4 className="font-bold">{item.name}</h4>
-                                    <span className="text-sm font-medium text-slate-500">{item.distance}</span>
-                                  </div>
-                                  <div className="flex items-center mt-1">
-                                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${item.type === 'Library' ? 'bg-indigo-100 text-indigo-800' : 'bg-teal-100 text-teal-800'}`}>
-                                        {item.type === 'Library' ? '도서관' : '스터디 카페'}
-                                    </span>
-                                    <div className="flex ml-4">
-                                      {[...Array(5)].map((_, idx) => <StarIcon key={idx} filled={idx < Math.round(item.rating)} />)}
-                                    </div>
-                                    <span className="text-xs text-slate-500 ml-2">({item.rating.toFixed(1)})</span>
-                                  </div>
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-semibold mb-4 text-slate-700">학습 공간 추천</h3>
+                                <div className="space-y-4">
+                                    {(report.localSupport.recommendedStudySpaces ?? []).map((item, i) => (
+                                        <div key={i} className="p-4 border rounded-lg transition-all hover:bg-slate-50">
+                                            <div className="flex justify-between items-center">
+                                                <h4 className="font-bold">{item.name}</h4>
+                                                <span className="text-sm font-medium text-slate-500">{item.distance}</span>
+                                            </div>
+                                            <div className="flex items-center mt-1">
+                                                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${item.type === 'Library' ? 'bg-indigo-100 text-indigo-800' : 'bg-teal-100 text-teal-800'}`}>
+                                                    {item.type === 'Library' ? '도서관' : '스터디 카페'}
+                                                </span>
+                                                <div className="flex ml-4">
+                                                    {[...Array(5)].map((_, idx) => <StarIcon key={idx} filled={idx < Math.round(item.rating)} />)}
+                                                </div>
+                                                <span className="text-xs text-slate-500 ml-2">({item.rating.toFixed(1)})</span>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
+                            </div>
                         </div>
-                    </div>
-                </div>
-              </>
-            ) : <p className="text-slate-500">지역 기반 지원 정보를 불러올 수 없습니다.</p>}
-        </div>
-    );
+                    </>
+                ) : <p className="text-slate-500">지역 기반 지원 정보를 불러올 수 없습니다.</p>}
+            </div>
+        );
+    }
 
     const tabs = [
         { id: 'dashboard', label: '종합 대시보드' },

@@ -151,6 +151,7 @@ const getAnalysisPrompt = (
     6.  **Local Support (LBS)**:
         - Identify the student's weakest subject.
         - Based on the user's location, recommend 3 nearby specialized academies and 2 study spaces (libraries or study cafes). If location is not available, provide general advice. Include realistic names, distances, ratings, and review counts.
+        - **For each recommended academy and study space, you must include its precise latitude and longitude.**
 
     **CRITICAL**: The final output must be a single, valid JSON object only. Do not add any text, markdown formatting like \`\`\`json, or any explanations outside the JSON object itself.
   `;
@@ -299,8 +300,10 @@ export const analyzeStudentData = async (
                       distance: { type: Type.STRING },
                       rating: { type: Type.NUMBER },
                       reviewCount: { type: Type.NUMBER },
+                      latitude: { type: Type.NUMBER },
+                      longitude: { type: Type.NUMBER },
                     },
-                    required: ["name", "distance", "rating", "reviewCount"]
+                    required: ["name", "distance", "rating", "reviewCount", "latitude", "longitude"]
                   },
                 },
                 recommendedStudySpaces: {
@@ -312,8 +315,10 @@ export const analyzeStudentData = async (
                       type: { type: Type.STRING },
                       distance: { type: Type.STRING },
                       rating: { type: Type.NUMBER },
+                      latitude: { type: Type.NUMBER },
+                      longitude: { type: Type.NUMBER },
                     },
-                    required: ["name", "type", "distance", "rating"]
+                    required: ["name", "type", "distance", "rating", "latitude", "longitude"]
                   },
                 },
               },
